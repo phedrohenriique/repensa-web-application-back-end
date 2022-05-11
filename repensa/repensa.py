@@ -2,6 +2,8 @@ import sanic as sn
 
 ## instantiated Sanic Server
 
+## can start server with sanic repensa.app or python repensa.py (with app.run method)
+
 app = sn.Sanic('repensa_application')
 
 @app.get('/')
@@ -11,4 +13,4 @@ async def server_initiated(request):
 
 ## can configure the server parameters after the routes are set
 
-app.run(port=8800)
+app.run(host='0.0.0.0',port=8800)
