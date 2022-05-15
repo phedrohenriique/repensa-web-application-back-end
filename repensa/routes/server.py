@@ -4,6 +4,9 @@ from connection import create_pool
 
 server = sn.Blueprint('server',url_prefix='/server')
 
+## routes being setted with sn.Blueprint() method and exported
+## all routes can be acessed within the main file
+
 @server.get('/')
 async def server_start(request):
     print('server startd')
@@ -14,10 +17,12 @@ async def server_variables(request):
     print(config.PORT)
     return sn.json({"message":f"PORT : {config.PORT}"})
 
-@server.get('/data')
-async def server_data(request):
+@server.get('/user')
+async def server_user(request):
     query = """
-    select name, email from users where name = 'pedro'
+        SELECT name, email 
+        FROM users 
+        WHERE name = 'pedro'
     """
     pool = await  create_pool()
     connection = await  pool.acquire()
@@ -25,7 +30,7 @@ async def server_data(request):
     ## setting the .acquire() method allows for connecting and use db
     ## connection.transaction() necessar for more than one queries
 
-    results = await connection.fetch(query)
+    result = await connection.fetch(query)
 
     ## print(results, *results) the fetch result returns a list, with a record type variable
     ## in order to use and parse easily the parameters the result must have its arguments
@@ -33,7 +38,23 @@ async def server_data(request):
     ## specificall for one list returned value query, if there were more results,
     ## another list should be done in an array
 
-    response = dict(*results)
+    response = [dict(result) for result in result]
 
     connection.close()
     return  sn.json(response, 200)
+
+@server.get('/allusers')
+async def server_users(request):
+    query="""
+        SELECT name, email 
+        FROM users
+    """
+    pool = await create_pool()
+    connection = await pool.acquire()
+    result = await connection.fetch(query)
+    
+    result = [dict(result) for result in result]
+    response = result
+    
+
+    return sn.json(response, 200)
