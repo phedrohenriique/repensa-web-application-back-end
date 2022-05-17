@@ -1,5 +1,6 @@
 import sanic as sn
 from .server import server
+from .users import users
 
 ## if used the statement $import server will reference the server.py file while
 ## $from .server import server will import the variable inside the server.py file
@@ -13,6 +14,6 @@ from .server import server
 ## own handler to be dealt and url
 
 routes = sn.Blueprint.group(
-    server, 
-    url_prefix='/'
-    )
+    server,
+    users,
+    url_prefix='/')
