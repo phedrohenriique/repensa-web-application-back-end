@@ -2,6 +2,8 @@ import sanic as sn
 from connection import create_pool
 from mappers import map_users
 import hashlib as hs
+from configuration import SECRET_KEY
+import jwt
 
 users = sn.Blueprint('users', url_prefix='/users')
 
@@ -56,9 +58,7 @@ async def users_login(request):
     
     email = request.json.get('email')
     password = request.json.get('password')
-    print("!!!!!!",password,"!!!!")
     hash_password = hs.sha256(str(password).encode()).hexdigest()
-    print("!!!!!!",hash_password,"!!!!")
 
     query_login = """
         SELECT password 
@@ -74,15 +74,18 @@ async def users_login(request):
     try:
         result = await connection.fetch(query_login, email)
         result = [map_users(result) for result in result]
-        print("!!!!!!",result,"!!!!")
         db_password = result[0].get('password')
         if db_password == hash_password:
             user = await connection.fetch(query_return, email)
             user = [map_users(user) for user in user]
-            return sn.json({
+
+            key = SECRET_KEY
+            payload = {
                 "message": "user logged in",
-                "user":user
-            })
+                "user": user
+            }
+            token = jwt.encode(payload, key, "HS256")
+            return sn.json(token)
     except Exception as error:
         print(f"{error}")
         return sn.json({"message": f"{error}"})

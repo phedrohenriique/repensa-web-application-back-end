@@ -1,6 +1,9 @@
 import sanic as sn
 import configuration as config
+import jwt
+
 from connection import create_pool
+from configuration import authorized, SECRET_KEY
 
 server = sn.Blueprint('server',url_prefix='/server')
 
@@ -10,7 +13,7 @@ server = sn.Blueprint('server',url_prefix='/server')
 @server.get('/')
 async def server_start(request):
     print('server startd')
-    return sn.json({ "message": "server started"})
+    return sn.json({ "message": f"server is running on PORT : {config.PORT}"})
 
 @server.get('/env')
 async def server_variables(request):
@@ -58,3 +61,10 @@ async def server_users(request):
     
 
     return sn.json(response, 200)
+
+@server.get('/authorized')
+@authorized
+async def get_authorized_info(request):
+    token_data = jwt.decode(request.token, SECRET_KEY, algorithms=["HS256"])
+    
+    return sn.json(token_data)

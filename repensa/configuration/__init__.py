@@ -4,5 +4,8 @@ from .variables import (
     DB_HOST,
     DB_PORT,
     DB_USER,
-    DB_PASSWORD
+    DB_PASSWORD,
+    SECRET_KEY
 )
+
+from .decorators import authorized
